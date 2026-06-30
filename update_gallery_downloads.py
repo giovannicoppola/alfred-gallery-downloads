@@ -59,11 +59,12 @@ def main():
     changed = 0
     for slug, count in counts.items():
         hist = data.setdefault(slug, [])       # new workflow -> fresh history
+        entry = {"date": date, "count": count, "display": f"{count:,}"}
         existing = next((e for e in hist if e.get("date") == date), None)
         if existing:
-            existing["count"] = count          # one snapshot per date -> update in place
+            existing.update(entry)             # one snapshot per date -> update in place
         else:
-            hist.append({"date": date, "count": count})
+            hist.append(entry)
         changed += 1
 
     for hist in data.values():                 # keep every history newest-first,

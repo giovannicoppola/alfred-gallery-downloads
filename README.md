@@ -12,6 +12,7 @@ When a new periodic stats dump arrives, copy the block and run:
 
 ```sh
 pbpaste | ./update_gallery_downloads.py                 # dated today
+pbpaste | ./update_gallery_downloads.py --report        # update + generate markdown report
 pbpaste | ./update_gallery_downloads.py --date 2026-05-31  # override if uploading late
 ./update_gallery_downloads.py dump.txt                  # from a file (uses file mtime)
 ```
@@ -22,6 +23,25 @@ Then `git commit && git push`. The script:
 - stores one dated snapshot per workflow, newest-first,
 - adds new workflows automatically,
 - keeps every history sorted by date, so out-of-order/backfilled dumps self-correct.
+
+### Reports
+
+Generate markdown reports with download statistics and growth analysis:
+
+```sh
+./generate_report.py                 # generate report for latest data
+./generate_report.py --date 2026-07-09  # generate report for specific date
+```
+
+Reports are saved in `reports/` directory:
+- `report-YYYY-MM-DD.md` - dated report
+- `latest.md` - most recent report
+
+Reports include:
+- Total downloads and growth vs. previous measurement
+- Per-workflow statistics with absolute and percentage growth
+- Annualized growth rates
+- Top performers by absolute and percentage growth
 
 ## Badge snippet
 

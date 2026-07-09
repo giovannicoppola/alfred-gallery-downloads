@@ -5,12 +5,13 @@ Usage:
     pbpaste | ./update_gallery_downloads.py            # date = today
     ./update_gallery_downloads.py dump.txt             # date = file mtime
     ./update_gallery_downloads.py --date 2026-05-31    # explicit override (e.g. late upload)
+    pbpaste | ./update_gallery_downloads.py --report   # update and generate report
 
 Dump format (one workflow per line; dot/space leaders are fine):
     convert.............5163
     michelin-guide......951
 """
-import argparse, datetime, json, re, sys
+import argparse, datetime, json, re, subprocess, sys
 from pathlib import Path
 
 DATA = Path(__file__).with_name("downloads.json")
@@ -40,6 +41,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("infile", nargs="?", help="dump file; omit to read stdin")
     ap.add_argument("--date", help="explicit YYYY-MM-DD; overrides everything")
+    ap.add_argument("--report", action="store_true", help="generate markdown report after update")
     args = ap.parse_args()
 
     text = Path(args.infile).read_text() if args.infile else sys.stdin.read()
@@ -72,6 +74,13 @@ def main():
 
     DATA.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
     print(f"date={date}: parsed {len(counts)} workflows, recorded {changed} -> {DATA}")
+
+    if args.report:
+        report_script = Path(__file__).with_name("generate_report.py")
+        if report_script.exists():
+            subprocess.run([sys.executable, str(report_script), "--date", date], check=True)
+        else:
+            print(f"Warning: {report_script} not found, skipping report generation", file=sys.stderr)
 
 
 if __name__ == "__main__":
